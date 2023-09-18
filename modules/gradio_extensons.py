@@ -8,7 +8,8 @@ def add_classes_to_gradio_component(comp):
     this adds gradio-* to the component for css styling (ie gradio-button to gr.Button), as well as some others
     """
 
-    comp.elem_classes = [f"gradio-{comp.get_block_name()}", *(comp.elem_classes or [])]
+    comp.elem_classes = [
+        f"gradio-{comp.get_block_name()}", *(comp.elem_classes or [])]
 
     if getattr(comp, 'multiselect', False):
         comp.elem_classes.append('multiselect')
@@ -64,10 +65,14 @@ def Blocks_get_config_file(self, *args, **kwargs):
     return config
 
 
-original_IOComponent_init = patches.patch(__name__, obj=gr.components.IOComponent, field="__init__", replacement=IOComponent_init)
-original_Block_get_config = patches.patch(__name__, obj=gr.blocks.Block, field="get_config", replacement=Block_get_config)
-original_BlockContext_init = patches.patch(__name__, obj=gr.blocks.BlockContext, field="__init__", replacement=BlockContext_init)
-original_Blocks_get_config_file = patches.patch(__name__, obj=gr.blocks.Blocks, field="get_config_file", replacement=Blocks_get_config_file)
+original_IOComponent_init = patches.patch(
+    __name__, obj=gr.components.IOComponent, field="__init__", replacement=IOComponent_init)
+original_Block_get_config = patches.patch(
+    __name__, obj=gr.blocks.Block, field="get_config", replacement=Block_get_config)
+original_BlockContext_init = patches.patch(
+    __name__, obj=gr.blocks.BlockContext, field="__init__", replacement=BlockContext_init)
+original_Blocks_get_config_file = patches.patch(
+    __name__, obj=gr.blocks.Blocks, field="get_config_file", replacement=Blocks_get_config_file)
 
 
 ui_tempdir.install_ui_tempdir_override()

@@ -21,7 +21,8 @@ def register_page(page):
 
     extra_pages.append(page)
     allowed_dirs.clear()
-    allowed_dirs.update(set(sum([x.allowed_directories_for_previews() for x in extra_pages], [])))
+    allowed_dirs.update(
+        set(sum([x.allowed_directories_for_previews() for x in extra_pages], [])))
 
 
 def fetch_file(filename: str = ""):
@@ -31,11 +32,13 @@ def fetch_file(filename: str = ""):
         raise HTTPException(status_code=404, detail="File not found")
 
     if not any(Path(x).absolute() in Path(filename).absolute().parents for x in allowed_dirs):
-        raise ValueError(f"File cannot be fetched: {filename}. Must be in one of directories registered by extra pages.")
+        raise ValueError(
+            f"File cannot be fetched: {filename}. Must be in one of directories registered by extra pages.")
 
     ext = os.path.splitext(filename)[1].lower()
     if ext not in (".png", ".jpg", ".jpeg", ".webp", ".gif"):
-        raise ValueError(f"File cannot be fetched: {filename}. Only png, jpg, webp, and gif.")
+        raise ValueError(
+            f"File cannot be fetched: {filename}. Only png, jpg, webp, and gif.")
 
     # would profit from returning 304
     return FileResponse(filename, headers={"Accept-Ranges": "bytes"})
@@ -75,8 +78,10 @@ def get_single_card(page: str = "", tabname: str = "", name: str = ""):
 
 def add_pages_to_demo(app):
     app.add_api_route("/sd_extra_networks/thumb", fetch_file, methods=["GET"])
-    app.add_api_route("/sd_extra_networks/metadata", get_metadata, methods=["GET"])
-    app.add_api_route("/sd_extra_networks/get-single-card", get_single_card, methods=["GET"])
+    app.add_api_route("/sd_extra_networks/metadata",
+                      get_metadata, methods=["GET"])
+    app.add_api_route("/sd_extra_networks/get-single-card",
+                      get_single_card, methods=["GET"])
 
 
 def quote_js(s):
@@ -109,9 +114,11 @@ class ExtraNetworksPage:
         item["user_metadata"] = metadata
 
     def link_preview(self, filename):
+        reverse_prefix = os.environ.get('reverse_prefix')
+        ui_prefix = reverse_prefix.split('/')[-1]
         quoted_filename = urllib.parse.quote(filename.replace('\\', '/'))
         mtime = os.path.getmtime(filename)
-        return f"./sd_extra_networks/thumb?filename={quoted_filename}&mtime={mtime}"
+        return f"./{ui_prefix}/sd_extra_networks/thumb?filename={quoted_filename}&mtime={mtime}"
 
     def search_terms_from_path(self, filename, possible_directories=None):
         abspath = os.path.abspath(filename)
@@ -137,7 +144,8 @@ class ExtraNetworksPage:
                     if not os.path.isdir(x):
                         continue
 
-                    subdir = os.path.abspath(x)[len(parentdir):].replace("\\", "/")
+                    subdir = os.path.abspath(
+                        x)[len(parentdir):].replace("\\", "/")
                     while subdir.startswith("/"):
                         subdir = subdir[1:]
 
@@ -171,8 +179,10 @@ class ExtraNetworksPage:
             items_html += self.create_html_for_item(item, tabname)
 
         if items_html == '':
-            dirs = "".join([f"<li>{x}</li>" for x in self.allowed_directories_for_previews()])
-            items_html = shared.html("extra-networks-no-cards.html").format(dirs=dirs)
+            dirs = "".join(
+                [f"<li>{x}</li>" for x in self.allowed_directories_for_previews()])
+            items_html = shared.html(
+                "extra-networks-no-cards.html").format(dirs=dirs)
 
         self_name_id = self.name.replace(" ", "_")
 
@@ -205,7 +215,9 @@ class ExtraNetworksPage:
 
         onclick = item.get("onclick", None)
         if onclick is None:
-            onclick = '"' + html.escape(f"""return cardClicked({quote_js(tabname)}, {item["prompt"]}, {"true" if self.allow_negative_prompt else "false"})""") + '"'
+            onclick = '"' + \
+                html.escape(
+                    f"""return cardClicked({quote_js(tabname)}, {item["prompt"]}, {"true" if self.allow_negative_prompt else "false"})""") + '"'
 
         height = f"height: {shared.opts.extra_networks_card_height}px;" if shared.opts.extra_networks_card_height else ''
         width = f"width: {shared.opts.extra_networks_card_width}px;" if shared.opts.extra_networks_card_width else ''
@@ -235,7 +247,8 @@ class ExtraNetworksPage:
         if search_only and shared.opts.extra_networks_hidden_models == "Never":
             return ""
 
-        sort_keys = " ".join([html.escape(f'data-sort-{k}={v}') for k, v in item.get("sort_keys", {}).items()]).strip()
+        sort_keys = " ".join([html.escape(
+            f'data-sort-{k}={v}') for k, v in item.get("sort_keys", {}).items()]).strip()
 
         args = {
             "background_image": background_image,
@@ -277,7 +290,8 @@ class ExtraNetworksPage:
         if shared.opts.samples_format not in preview_extensions:
             preview_extensions.append(shared.opts.samples_format)
 
-        potential_files = sum([[path + "." + ext, path + ".preview." + ext] for ext in preview_extensions], [])
+        potential_files = sum(
+            [[path + "." + ext, path + ".preview." + ext] for ext in preview_extensions], [])
 
         for file in potential_files:
             if os.path.isfile(file):
@@ -331,7 +345,8 @@ class ExtraNetworksUi:
 
 
 def pages_in_preferred_order(pages):
-    tab_order = [x.lower().strip() for x in shared.opts.ui_extra_networks_tab_reorder.split(",")]
+    tab_order = [x.lower().strip()
+                 for x in shared.opts.ui_extra_networks_tab_reorder.split(",")]
 
     def tab_name_score(name):
         name = name.lower()
@@ -341,7 +356,8 @@ def pages_in_preferred_order(pages):
 
         return len(pages)
 
-    tab_scores = {page.name: (tab_name_score(page.name), original_index) for original_index, page in enumerate(pages)}
+    tab_scores = {page.name: (tab_name_score(page.name), original_index)
+                  for original_index, page in enumerate(pages)}
 
     return sorted(pages, key=lambda x: tab_scores[x.name])
 
@@ -364,7 +380,8 @@ def create_ui(interface: gr.Blocks, unrelated_tabs, tabname):
             page_elem = gr.HTML('Loading...', elem_id=elem_id)
             ui.pages.append(page_elem)
 
-            page_elem.change(fn=lambda: None, _js='function(){applyExtraNetworkFilter(' + quote_js(tabname) + '); return []}', inputs=[], outputs=[])
+            page_elem.change(fn=lambda: None, _js='function(){applyExtraNetworkFilter(' + quote_js(
+                tabname) + '); return []}', inputs=[], outputs=[])
 
             editor = page.create_user_metadata_editor(ui, tabname)
             editor.create_ui()
@@ -372,20 +389,29 @@ def create_ui(interface: gr.Blocks, unrelated_tabs, tabname):
 
             related_tabs.append(tab)
 
-    edit_search = gr.Textbox('', show_label=False, elem_id=tabname+"_extra_search", elem_classes="search", placeholder="Search...", visible=False, interactive=True)
-    dropdown_sort = gr.Dropdown(choices=['Default Sort', 'Date Created', 'Date Modified', 'Name'], value='Default Sort', elem_id=tabname+"_extra_sort", elem_classes="sort", multiselect=False, visible=False, show_label=False, interactive=True, label=tabname+"_extra_sort_order")
-    button_sortorder = ToolButton(switch_values_symbol, elem_id=tabname+"_extra_sortorder", elem_classes="sortorder", visible=False)
-    button_refresh = gr.Button('Refresh', elem_id=tabname+"_extra_refresh", visible=False)
-    checkbox_show_dirs = gr.Checkbox(True, label='Show dirs', elem_id=tabname+"_extra_show_dirs", elem_classes="show-dirs", visible=False)
+    edit_search = gr.Textbox('', show_label=False, elem_id=tabname + "_extra_search",
+                             elem_classes="search", placeholder="Search...", visible=False, interactive=True)
+    dropdown_sort = gr.Dropdown(choices=['Default Sort', 'Date Created', 'Date Modified', 'Name'], value='Default Sort', elem_id=tabname + "_extra_sort",
+                                elem_classes="sort", multiselect=False, visible=False, show_label=False, interactive=True, label=tabname + "_extra_sort_order")
+    button_sortorder = ToolButton(switch_values_symbol, elem_id=tabname +
+                                  "_extra_sortorder", elem_classes="sortorder", visible=False)
+    button_refresh = gr.Button(
+        'Refresh', elem_id=tabname + "_extra_refresh", visible=False)
+    checkbox_show_dirs = gr.Checkbox(
+        True, label='Show dirs', elem_id=tabname + "_extra_show_dirs", elem_classes="show-dirs", visible=False)
 
-    ui.button_save_preview = gr.Button('Save preview', elem_id=tabname+"_save_preview", visible=False)
-    ui.preview_target_filename = gr.Textbox('Preview save filename', elem_id=tabname+"_preview_filename", visible=False)
+    ui.button_save_preview = gr.Button(
+        'Save preview', elem_id=tabname + "_save_preview", visible=False)
+    ui.preview_target_filename = gr.Textbox(
+        'Preview save filename', elem_id=tabname + "_preview_filename", visible=False)
 
     for tab in unrelated_tabs:
-        tab.select(fn=lambda: [gr.update(visible=False) for _ in range(5)], inputs=[], outputs=[edit_search, dropdown_sort, button_sortorder, button_refresh, checkbox_show_dirs], show_progress=False)
+        tab.select(fn=lambda: [gr.update(visible=False) for _ in range(5)], inputs=[], outputs=[
+                   edit_search, dropdown_sort, button_sortorder, button_refresh, checkbox_show_dirs], show_progress=False)
 
     for tab in related_tabs:
-        tab.select(fn=lambda: [gr.update(visible=True) for _ in range(5)], inputs=[], outputs=[edit_search, dropdown_sort, button_sortorder, button_refresh, checkbox_show_dirs], show_progress=False)
+        tab.select(fn=lambda: [gr.update(visible=True) for _ in range(5)], inputs=[], outputs=[
+                   edit_search, dropdown_sort, button_sortorder, button_refresh, checkbox_show_dirs], show_progress=False)
 
     def pages_html():
         if not ui.pages_contents:
@@ -397,7 +423,8 @@ def create_ui(interface: gr.Blocks, unrelated_tabs, tabname):
         for pg in ui.stored_extra_pages:
             pg.refresh()
 
-        ui.pages_contents = [pg.create_html(ui.tabname) for pg in ui.stored_extra_pages]
+        ui.pages_contents = [pg.create_html(
+            ui.tabname) for pg in ui.stored_extra_pages]
 
         return ui.pages_contents
 
@@ -445,11 +472,10 @@ def setup_ui(ui, gallery):
     ui.button_save_preview.click(
         fn=save_preview,
         _js="function(x, y, z){return [selected_gallery_index(), y, z]}",
-        inputs=[ui.preview_target_filename, gallery, ui.preview_target_filename],
+        inputs=[ui.preview_target_filename,
+                gallery, ui.preview_target_filename],
         outputs=[*ui.pages]
     )
 
     for editor in ui.user_metadata_editors:
         editor.setup_ui(gallery)
-
-

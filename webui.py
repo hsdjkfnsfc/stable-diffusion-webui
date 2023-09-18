@@ -67,19 +67,21 @@ def webui():
         if not cmd_opts.no_gradio_queue:
             shared.demo.queue(64)
 
-        gradio_auth_creds = list(initialize_util.get_gradio_auth_creds()) or None
+        gradio_auth_creds = list(
+            initialize_util.get_gradio_auth_creds()) or None
 
         auto_launch_browser = False
         if os.getenv('SD_WEBUI_RESTARTING') != '1':
             if shared.opts.auto_launch_browser == "Remote" or cmd_opts.autolaunch:
                 auto_launch_browser = True
             elif shared.opts.auto_launch_browser == "Local":
-                auto_launch_browser = not any([cmd_opts.listen, cmd_opts.share, cmd_opts.ngrok, cmd_opts.server_name])
+                auto_launch_browser = not any(
+                    [cmd_opts.listen, cmd_opts.share, cmd_opts.ngrok, cmd_opts.server_name])
 
         app, local_url, share_url = shared.demo.launch(
-            share=cmd_opts.share,
-            server_name=initialize_util.gradio_server_name(),
-            server_port=cmd_opts.port,
+            share=True,
+            server_name="0.0.0.0",
+            server_port=7861,
             ssl_keyfile=cmd_opts.tls_keyfile,
             ssl_certfile=cmd_opts.tls_certfile,
             ssl_verify=cmd_opts.disable_tls_verify,
@@ -92,7 +94,7 @@ def webui():
                 "docs_url": "/docs",
                 "redoc_url": "/redoc",
             },
-            root_path=f"/{cmd_opts.subpath}" if cmd_opts.subpath else "",
+            root_path=os.getenv("reverse_prefix", "")
         )
 
         startup_timer.record("gradio launch")
@@ -101,7 +103,8 @@ def webui():
         # an attacker to trick the user into opening a malicious HTML page, which makes a request to the
         # running web ui and do whatever the attacker wants, including installing an extension and
         # running its code. We disable this here. Suggested by RyotaK.
-        app.user_middleware = [x for x in app.user_middleware if x.cls.__name__ != 'CORSMiddleware']
+        app.user_middleware = [
+            x for x in app.user_middleware if x.cls.__name__ != 'CORSMiddleware']
 
         initialize_util.setup_middleware(app)
 
@@ -123,7 +126,8 @@ def webui():
 
         try:
             while True:
-                server_command = shared.state.wait_for_server_command(timeout=5)
+                server_command = shared.state.wait_for_server_command(
+                    timeout=5)
                 if server_command:
                     if server_command in ("stop", "restart"):
                         break

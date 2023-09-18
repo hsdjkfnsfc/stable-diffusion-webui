@@ -297,7 +297,7 @@ function extraNetworksRequestMetadata(event, extraPage, cardName) {
         extraNetworksShowMetadata("there was an error getting metadata");
     };
 
-    requestGet("./sd_extra_networks/metadata", {page: extraPage, item: cardName}, function(data) {
+    requestGet(window.location.pathname + "/sd_extra_networks/metadata", {page: extraPage, item: cardName}, function(data) {
         if (data && data.metadata) {
             extraNetworksShowMetadata(data.metadata);
         } else {
@@ -333,7 +333,7 @@ function extraNetworksEditUserMetadata(event, tabname, extraPage, cardName) {
 }
 
 function extraNetworksRefreshSingleCard(page, tabname, name) {
-    requestGet("./sd_extra_networks/get-single-card", {page: page, tabname: tabname, name: name}, function(data) {
+    requestGet(window.location.pathname + "/sd_extra_networks/metadata", {page: page, tabname: tabname, name: name}, function(data) {
         if (data && data.html) {
             var card = gradioApp().querySelector('.card[data-name=' + JSON.stringify(name) + ']'); // likely using the wrong stringify function
 

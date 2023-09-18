@@ -93,7 +93,7 @@ function requestProgress(id_task, progressbarContainer, gallery, atEnd, onProgre
     };
 
     var funProgress = function(id_task) {
-        request("./internal/progress", {id_task: id_task, live_preview: false}, function(res) {
+        request(window.location.pathname + "/internal/progress", {id_task: id_task, live_preview: false}, function(res) {
             if (res.completed) {
                 removeProgressBar();
                 return;
@@ -147,7 +147,7 @@ function requestProgress(id_task, progressbarContainer, gallery, atEnd, onProgre
     };
 
     var funLivePreview = function(id_task, id_live_preview) {
-        request("./internal/progress", {id_task: id_task, id_live_preview: id_live_preview}, function(res) {
+        request(window.location.pathname + "/internal/progress", {id_task: id_task, id_live_preview: id_live_preview}, function(res) {
             if (!divProgress) {
                 return;
             }

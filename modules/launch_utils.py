@@ -18,7 +18,7 @@ from modules import logging_config
 args, _ = cmd_args.parser.parse_known_args()
 logging_config.setup_logging(args.loglevel)
 
-python = sys.executable
+python = "/root/miniconda3/envs/test/bin/python"
 git = os.environ.get('GIT', "git")
 index_url = os.environ.get('INDEX_URL', "")
 dir_repos = "repositories"

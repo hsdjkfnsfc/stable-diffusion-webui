@@ -11,7 +11,10 @@ def webpath(fn):
     else:
         web_path = os.path.abspath(fn)
 
-    return f'file={web_path}?{os.path.getmtime(fn)}'
+    prefix = os.getenv("reverse_prefix", "")
+    if prefix != "":
+        prefix = prefix + "/"
+    return f'{prefix}file={web_path}?{os.path.getmtime(fn)}'
 
 
 def javascript_html():
