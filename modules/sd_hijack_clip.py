@@ -268,7 +268,7 @@ class FrozenCLIPEmbedderWithCustomWordsBase(torch.nn.Module):
         if self.id_end != self.id_pad:
             for batch_pos in range(len(remade_batch_tokens)):
                 index = remade_batch_tokens[batch_pos].index(self.id_end)
-                tokens[batch_pos, index+1:tokens.shape[1]] = self.id_pad
+                tokens[batch_pos, index + 1:tokens.shape[1]] = self.id_pad
 
         z = self.encode_with_transformers(tokens)
 
@@ -326,7 +326,7 @@ class FrozenCLIPEmbedderWithCustomWords(FrozenCLIPEmbedderWithCustomWordsBase):
         outputs = self.wrapped.transformer(input_ids=tokens, output_hidden_states=-opts.CLIP_stop_at_last_layers)
 
         if opts.CLIP_stop_at_last_layers > 1:
-            z = outputs.hidden_states[-opts.CLIP_stop_at_last_layers]
+            z = outputs.hidden_states[int(-opts.CLIP_stop_at_last_layers)]
             z = self.wrapped.transformer.text_model.final_layer_norm(z)
         else:
             z = outputs.last_hidden_state

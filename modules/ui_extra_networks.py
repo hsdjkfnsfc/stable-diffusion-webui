@@ -114,11 +114,16 @@ class ExtraNetworksPage:
         item["user_metadata"] = metadata
 
     def link_preview(self, filename):
-        reverse_prefix = os.environ.get('reverse_prefix')
-        ui_prefix = reverse_prefix.split('/')[-1]
-        quoted_filename = urllib.parse.quote(filename.replace('\\', '/'))
-        mtime = os.path.getmtime(filename)
-        return f"./{ui_prefix}/sd_extra_networks/thumb?filename={quoted_filename}&mtime={mtime}"
+        reverse_prefix = os.environ.get('reverse_prefix', False)
+        if reverse_prefix:
+            ui_prefix = reverse_prefix.split('/')[-1]
+            quoted_filename = urllib.parse.quote(filename.replace('\\', '/'))
+            mtime = os.path.getmtime(filename)
+            return f"./{ui_prefix}/sd_extra_networks/thumb?filename={quoted_filename}&mtime={mtime}"
+        else:
+            quoted_filename = urllib.parse.quote(filename.replace('\\', '/'))
+            mtime = os.path.getmtime(filename)
+            return f"./sd_extra_networks/thumb?filename={quoted_filename}&mtime={mtime}"
 
     def search_terms_from_path(self, filename, possible_directories=None):
         abspath = os.path.abspath(filename)

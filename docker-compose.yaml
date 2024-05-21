@@ -1,0 +1,26 @@
+version: '3'
+services:
+
+  webui7812 :
+    image: hxjs-registry.cn-beijing.cr.aliyuncs.com/ai-group/celery_huimeng_ai:latest
+    # command: launch.py --api --xformers 
+    volumes:
+      -  /home/ps/Nas/stable-diffusion-webui:/stable-diffusion-webui
+      -  /home/ps/Nas/huggingface:/root/.cache/huggingface
+
+    restart: always
+    ports:
+      - 7812:7861
+    deploy:
+      resources:
+        limits:
+            cpus: "32.0"
+        reservations:
+          devices:
+            - driver: nvidia  #驱动
+              device_ids: ['7'] #gpu id和 count二选一
+              capabilities: [gpu]    #指定需要支持的功能；可以
+
+  
+
+  

@@ -96,12 +96,10 @@ def run(command, desc=None, errdesc=None, custom_env=None, live: bool = default_
         "encoding": 'utf8',
         "errors": 'ignore',
     }
-
     if not live:
         run_kwargs["stdout"] = run_kwargs["stderr"] = subprocess.PIPE
 
     result = subprocess.run(**run_kwargs)
-
     if result.returncode != 0:
         error_bits = [
             f"{errdesc or 'Error running command'}.",
@@ -135,7 +133,7 @@ def run_pip(command, desc=None, live=default_command_live):
         return
 
     index_url_line = f' --index-url {index_url}' if index_url != '' else ''
-    return run(f'"{python}" -m pip {command} --prefer-binary{index_url_line}', desc=f"Installing {desc}", errdesc=f"Couldn't install {desc}", live=live)
+    return run(f'"{python}" -m pip {command} --prefer-binary{index_url_line} -i https://pypi.tuna.tsinghua.edu.cn/simple', desc=f"Installing {desc} -i https://pypi.tuna.tsinghua.edu.cn/simple", errdesc=f"Couldn't install {desc}", live=live)
 
 
 def check_run_python(code: str) -> bool:
@@ -178,7 +176,8 @@ def git_clone(url, dir, name, commithash=None):
 
         run_git(dir, name, 'fetch', f"Fetching updates for {name}...", f"Couldn't fetch {name}", autofix=False)
 
-        run_git(dir, name, f'checkout {commithash}', f"Checking out commit for {name} with hash: {commithash}...", f"Couldn't checkout commit {commithash} for {name}", live=True)
+        run_git(dir, name, f'checkout {commithash}', f"Checking out commit for {name} with hash: {commithash}...",
+                f"Couldn't checkout commit {commithash} for {name}", live=True)
 
         return
 
@@ -314,7 +313,8 @@ def prepare_environment():
 
     xformers_package = os.environ.get('XFORMERS_PACKAGE', 'xformers==0.0.20')
     clip_package = os.environ.get('CLIP_PACKAGE', "https://github.com/openai/CLIP/archive/d50d76daa670286dd6cacf3bcd80b5e4823fc8e1.zip")
-    openclip_package = os.environ.get('OPENCLIP_PACKAGE', "https://github.com/mlfoundations/open_clip/archive/bb6e834e9c70d9c27d0dc3ecedeebeaeb1ffad6b.zip")
+    openclip_package = os.environ.get(
+        'OPENCLIP_PACKAGE', "https://github.com/mlfoundations/open_clip/archive/bb6e834e9c70d9c27d0dc3ecedeebeaeb1ffad6b.zip")
 
     stable_diffusion_repo = os.environ.get('STABLE_DIFFUSION_REPO', "https://github.com/Stability-AI/stablediffusion.git")
     stable_diffusion_xl_repo = os.environ.get('STABLE_DIFFUSION_XL_REPO', "https://github.com/Stability-AI/generative-models.git")
@@ -396,13 +396,16 @@ def prepare_environment():
         run_pip(f"install -r \"{requirements_file}\"", "requirements")
         startup_timer.record("install requirements")
 
+    print(args.skip_install)
     if not args.skip_install:
         run_extensions_installers(settings_file=args.ui_settings_file)
 
+    print(args.update_check)
     if args.update_check:
         version_check(commit)
         startup_timer.record("check version")
 
+    print(args.update_all_extensions)
     if args.update_all_extensions:
         git_pull_recursive(extensions_dir)
         startup_timer.record("update extensions")
@@ -410,7 +413,6 @@ def prepare_environment():
     if "--exit" in sys.argv:
         print("Exiting because of --exit argument")
         exit(0)
-
 
 
 def configure_for_tests():

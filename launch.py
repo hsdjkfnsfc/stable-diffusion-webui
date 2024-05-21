@@ -1,3 +1,5 @@
+import os
+os.environ.setdefault('LD_PRELOAD', 'libtcmalloc.so.4')
 from modules import launch_utils
 
 args = launch_utils.args

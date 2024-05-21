@@ -139,6 +139,7 @@ def get_argv():
 
     return res
 
+
 re_newline = re.compile(r"\r*\n")
 
 

@@ -542,7 +542,8 @@ def create_ui():
                     apply_label = ("Apply and restart UI" if restart.is_restartable() else "Apply and quit")
                     apply = gr.Button(value=apply_label, variant="primary")
                     check = gr.Button(value="Check for updates")
-                    extensions_disable_all = gr.Radio(label="Disable all extensions", choices=["none", "extra", "all"], value=shared.opts.disable_all_extensions, elem_id="extensions_disable_all")
+                    extensions_disable_all = gr.Radio(label="Disable all extensions", choices=[
+                                                      "none", "extra", "all"], value=shared.opts.disable_all_extensions, elem_id="extensions_disable_all")
                     extensions_disabled_list = gr.Text(elem_id="extensions_disabled_list", visible=False, container=False)
                     extensions_update_list = gr.Text(elem_id="extensions_update_list", visible=False, container=False)
 
@@ -582,14 +583,17 @@ def create_ui():
             with gr.TabItem("Available", id="available"):
                 with gr.Row():
                     refresh_available_extensions_button = gr.Button(value="Load from:", variant="primary")
-                    extensions_index_url = os.environ.get('WEBUI_EXTENSIONS_INDEX', "https://raw.githubusercontent.com/AUTOMATIC1111/stable-diffusion-webui-extensions/master/index.json")
+                    extensions_index_url = os.environ.get(
+                        'WEBUI_EXTENSIONS_INDEX', "https://raw.githubusercontent.com/AUTOMATIC1111/stable-diffusion-webui-extensions/master/index.json")
                     available_extensions_index = gr.Text(value=extensions_index_url, label="Extension index URL", container=False)
                     extension_to_install = gr.Text(elem_id="extension_to_install", visible=False)
                     install_extension_button = gr.Button(elem_id="install_extension_button", visible=False)
 
                 with gr.Row():
-                    hide_tags = gr.CheckboxGroup(value=["ads", "localization", "installed"], label="Hide extensions with tags", choices=["script", "ads", "localization", "installed"])
-                    sort_column = gr.Radio(value="newest first", label="Order", choices=["newest first", "oldest first", "a-z", "z-a", "internal order",'update time', 'create time', "stars"], type="index")
+                    hide_tags = gr.CheckboxGroup(value=["ads", "localization", "installed"], label="Hide extensions with tags", choices=[
+                                                 "script", "ads", "localization", "installed"])
+                    sort_column = gr.Radio(value="newest first", label="Order", choices=[
+                                           "newest first", "oldest first", "a-z", "z-a", "internal order", 'update time', 'create time', "stars"], type="index")
 
                 with gr.Row():
                     search_extensions_text = gr.Text(label="Search", container=False)
@@ -635,16 +639,20 @@ def create_ui():
                 install_result = gr.HTML(elem_id="extension_install_result")
 
                 install_button.click(
-                    fn=modules.ui.wrap_gradio_call(lambda *args: [gr.update(), *install_extension_from_url(*args)], extra_outputs=[gr.update(), gr.update()]),
+                    fn=modules.ui.wrap_gradio_call(
+                        lambda *args: [gr.update(), *install_extension_from_url(*args)], extra_outputs=[gr.update(), gr.update()]),
                     inputs=[install_dirname, install_url, install_branch],
                     outputs=[install_url, extensions_table, install_result],
                 )
 
             with gr.TabItem("Backup/Restore"):
                 with gr.Row(elem_id="extensions_backup_top_row"):
-                    config_states_list = gr.Dropdown(label="Saved Configs", elem_id="extension_backup_saved_configs", value="Current", choices=["Current"] + list(config_states.all_config_states.keys()))
-                    modules.ui.create_refresh_button(config_states_list, config_states.list_config_states, lambda: {"choices": ["Current"] + list(config_states.all_config_states.keys())}, "refresh_config_states")
-                    config_restore_type = gr.Radio(label="State to restore", choices=["extensions", "webui", "both"], value="extensions", elem_id="extension_backup_restore_type")
+                    config_states_list = gr.Dropdown(label="Saved Configs", elem_id="extension_backup_saved_configs",
+                                                     value="Current", choices=["Current"] + list(config_states.all_config_states.keys()))
+                    modules.ui.create_refresh_button(config_states_list, config_states.list_config_states, lambda: {"choices": [
+                                                     "Current"] + list(config_states.all_config_states.keys())}, "refresh_config_states")
+                    config_restore_type = gr.Radio(label="State to restore", choices=[
+                                                   "extensions", "webui", "both"], value="extensions", elem_id="extension_backup_restore_type")
                     config_restore_button = gr.Button(value="Restore Selected Config", variant="primary", elem_id="extension_backup_restore")
                 with gr.Row(elem_id="extensions_backup_top_row2"):
                     config_save_name = gr.Textbox("", placeholder="Config Name", show_label=False)
@@ -657,13 +665,13 @@ def create_ui():
                 config_save_button.click(fn=save_config_state, inputs=[config_save_name], outputs=[config_states_list, config_states_info])
 
                 dummy_component = gr.Label(visible=False)
-                config_restore_button.click(fn=restore_config_state, _js="config_state_confirm_restore", inputs=[dummy_component, config_states_list, config_restore_type], outputs=[config_states_info])
+                config_restore_button.click(fn=restore_config_state, _js="config_state_confirm_restore", inputs=[
+                                            dummy_component, config_states_list, config_restore_type], outputs=[config_states_info])
 
                 config_states_list.change(
                     fn=update_config_states_table,
                     inputs=[config_states_list],
                     outputs=[config_states_table],
                 )
-
 
     return ui
