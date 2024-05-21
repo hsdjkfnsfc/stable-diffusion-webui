@@ -38,3 +38,5 @@ notification.mp3
 /package-lock.json
 /.coverage*
 embeddings_cp
+/test/test_outputs
+/cache
