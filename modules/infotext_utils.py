@@ -250,6 +250,11 @@ Steps: 20, Sampler: Euler a, CFG scale: 7, Seed: 965400086, Size: 512x512, Model
 
     done_with_prompt = False
 
+    if x and '{"png_info":' in x:
+        info_str = x.replace("\n", "\\n")
+        info_dict = json.loads(info_str)
+        x = info_dict["png_info"]
+        
     *lines, lastline = x.strip().split("\n")
     if len(re_param.findall(lastline)) < 3:
         lines.append(lastline)
